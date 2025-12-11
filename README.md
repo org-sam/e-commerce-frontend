@@ -1,6 +1,6 @@
 # E-Commerce Frontend
 
-Este projeto é o frontend para o E-Commerce Lab, um estudo de arquitetura de microsserviços. Ele foi migrado de Vite/React para **Next.js** para suportar Renderização no Lado do Servidor (SSR).
+Este projeto é o frontend para o E-Commerce Lab, um estudo de arquitetura de microsserviços. Ele usa **Next.js** para suportar Renderização no Lado do Servidor (SSR).
 
 ## Tecnologias
 
