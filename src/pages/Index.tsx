@@ -1,14 +1,48 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { Header } from '@/components/Header';
+import { Hero } from '@/components/Hero';
+import { ProductGrid } from '@/components/ProductGrid';
+import { CartDrawer } from '@/components/CartDrawer';
+import { CartProvider } from '@/context/CartContext';
+import { Helmet } from 'react-helmet-async';
 
-const Index = () => {
+function StoreContent() {
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen">
+      <Header onCartClick={() => setIsCartOpen(true)} />
+      
+      <main className="container mx-auto px-4">
+        <Hero />
+        <ProductGrid />
+      </main>
+
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+
+      {/* Footer */}
+      <footer className="mt-16 border-t border-border py-8">
+        <div className="container mx-auto px-4 text-center">
+          <p className="font-mono text-sm text-muted-foreground">
+            E-Commerce Lab • Microservices Architecture Study
+          </p>
+          <p className="mt-2 font-mono text-xs text-muted-foreground/60">
+            Node.js • Python • Java • .NET • AWS EKS
+          </p>
+        </div>
+      </footer>
     </div>
   );
-};
+}
 
-export default Index;
+export default function Index() {
+  return (
+    <CartProvider>
+      <Helmet>
+        <title>E-Commerce Lab | Cloud Infrastructure Store</title>
+        <meta name="description" content="A heterogeneous microservices ecosystem for studying cloud architecture with AWS EKS, multiple message brokers, and various storage types." />
+      </Helmet>
+      <StoreContent />
+    </CartProvider>
+  );
+}
