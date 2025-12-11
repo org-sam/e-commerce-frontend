@@ -1,73 +1,77 @@
 # E-Commerce Frontend
 
-This project is the frontend for the E-Commerce Lab, a microservices architecture study. It has been migrated from Vite/React to **Next.js** to support Server-Side Rendering (SSR) and Datadog APM.
+Este projeto é o frontend para o E-Commerce Lab, um estudo de arquitetura de microsserviços. Ele foi migrado de Vite/React para **Next.js** para suportar Renderização no Lado do Servidor (SSR).
 
-## Technologies
+## Tecnologias
 
 - **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui
-- **State Management**: React Query (TanStack Query) + Context API
-- **Infrastructure**: Docker + Kubernetes (EKS)
+- **Linguagem**: TypeScript
+- **Estilização**: Tailwind CSS + shadcn/ui
+- **Gerenciamento de Estado**: React Query (TanStack Query) + Context API
+- **Infraestrutura**: Docker + Kubernetes (EKS)
+- **Formulários**: React Hook Form + Zod
+- **Visualização de Dados**: Recharts
+- **Ícones**: Lucide React
+- **Notificações**: Sonner
 
-## Project Structure
+## Estrutura do Projeto
 
 ```
 src/
-├── app/              # Next.js App Router pages and layouts
-│   ├── globals.css   # Global styles
-│   ├── layout.tsx    # Root layout with providers
-│   └── page.tsx      # Home page
-├── components/       # React components
-├── config/           # Configuration files
-├── context/          # React Context providers
-├── hooks/            # Custom React hooks
-└── lib/              # Utility functions
+├── app/              # Páginas e layouts do Next.js App Router
+│   ├── globals.css   # Estilos globais
+│   ├── layout.tsx    # Layout raiz com providers
+│   └── page.tsx      # Página inicial
+├── components/       # Componentes React
+├── config/           # Arquivos de configuração
+├── context/          # Providers de Contexto React
+├── hooks/            # Hooks React customizados
+└── lib/              # Funções utilitárias
 ```
 
-## Getting Started
+## Começando
 
-### Prerequisites
+### Pré-requisitos
 
 - Node.js 22+
 - npm
 
-### Installation
+### Instalação
 
-1. Clone the repository:
+1. Clone o repositório:
    ```bash
-   git clone <YOUR_GIT_URL>
+   git clone <SEU_GIT_URL>
    cd e-commerce-frontend
    ```
 
-2. Install dependencies:
+2. Instale as dependências:
    ```bash
    npm install --legacy-peer-deps
    ```
 
-3. Run the development server:
+3. Execute o servidor de desenvolvimento:
    ```bash
    npm run dev
    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000) no seu navegador para ver o resultado.
 
-## Environment Variables
+## Variáveis de Ambiente
 
-Create a `.env.local` file for local development:
+Crie um arquivo `.env.local` para desenvolvimento local:
 
 ```env
 NEXT_PUBLIC_CATALOG_SERVICE_URL=http://localhost:3001
 NEXT_PUBLIC_ORDER_SERVICE_URL=http://localhost:3002
 ```
 
-### Build Image
+### Build da Imagem
 
 ```bash
 docker build -t e-commerce-frontend .
 ```
 
-### Run Container
+### Executar Container
 
 ```bash
 docker run -p 3000:3000 e-commerce-frontend
