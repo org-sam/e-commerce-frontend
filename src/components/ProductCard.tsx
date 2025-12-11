@@ -14,7 +14,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
 
   const handleAddToCart = () => {
     addItem(product);
-    toast.success(`${product.name} added to cart`);
+    toast.success(`${product.name} adicionado ao carrinho`);
   };
 
   const categoryColors: Record<string, string> = {
@@ -63,11 +63,11 @@ export function ProductCard({ product, index }: ProductCardProps) {
               ${product.price.toFixed(2)}
             </span>
             <span className="ml-2 font-mono text-xs text-muted-foreground">
-              /month
+              /mês
             </span>
           </div>
           <span className="font-mono text-xs text-muted-foreground">
-            {product.stock} units
+            {product.stock} unidades
           </span>
         </div>
 
@@ -78,7 +78,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
           onClick={handleAddToCart}
         >
           <Plus className="h-4 w-4" />
-          Add to Cart
+          Adicionar ao Carrinho
         </Button>
       </div>
 

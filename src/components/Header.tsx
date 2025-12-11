@@ -26,15 +26,6 @@ export function Header({ onCartClick }: HeaderProps) {
             </div>
           </div>
 
-          {/* Status Indicator */}
-          <div className="hidden items-center gap-2 rounded-full border border-border bg-secondary/50 px-4 py-1.5 md:flex">
-            <Terminal className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="font-mono text-xs text-muted-foreground">
-              microservices: <span className="text-warning">testing</span>
-            </span>
-            <div className="h-2 w-2 animate-pulse rounded-full bg-warning" />
-          </div>
-
           {/* Cart Button */}
           <Button
             variant="outline"
@@ -43,7 +34,7 @@ export function Header({ onCartClick }: HeaderProps) {
             className="relative"
           >
             <ShoppingCart className="h-5 w-5" />
-            <span className="hidden sm:inline">Cart</span>
+            <span className="hidden sm:inline">Carrinho</span>
             {itemCount > 0 && (
               <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                 {itemCount}

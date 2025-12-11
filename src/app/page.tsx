@@ -25,7 +25,7 @@ function StoreContent() {
             <footer className="mt-16 border-t border-border py-8">
                 <div className="container mx-auto px-4 text-center">
                     <p className="font-mono text-sm text-muted-foreground">
-                        E-Commerce Lab • Microservices Architecture Study
+                        E-Commerce Lab • Estudo de Arquitetura de Microsserviços
                     </p>
                     <p className="mt-2 font-mono text-xs text-muted-foreground/60">
                         Node.js • Python • Java • .NET • AWS EKS

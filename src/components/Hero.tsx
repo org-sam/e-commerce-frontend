@@ -13,7 +13,7 @@ export function Hero() {
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5">
           <Zap className="h-4 w-4 text-primary" />
           <span className="font-mono text-sm text-primary">
-            Microservices Architecture Study
+            Estudo de Arquitetura de Microsserviços
           </span>
         </div>
 
@@ -22,13 +22,13 @@ export function Hero() {
           E-Commerce{' '}
           <span className="text-gradient">Lab</span>
           <br />
-          <span className="text-muted-foreground">Cloud Infrastructure Store</span>
+          <span className="text-muted-foreground">Loja de Infraestrutura em Nuvem</span>
         </h1>
 
         {/* Description */}
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-          A heterogeneous microservices ecosystem featuring multiple languages,
-          message brokers, and AWS storage types. Built for learning and validation.
+          Um ecossistema heterogêneo de microsserviços com múltiplas linguagens,
+          brokers de mensageria e tipos de armazenamento AWS. Construído para aprendizado e validação.
         </p>
 
         {/* Tech Stack Pills */}
@@ -53,7 +53,7 @@ export function Hero() {
         {/* Service Flow Diagram */}
         <div className="mx-auto mt-12 max-w-3xl rounded-xl border border-border bg-card/50 p-6">
           <p className="mb-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-            Event Flow
+            Fluxo de Eventos
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
             <span className="rounded-lg bg-primary/20 px-3 py-1.5 font-medium text-primary">

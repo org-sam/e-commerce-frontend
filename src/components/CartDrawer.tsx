@@ -24,7 +24,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     
     try {
       const result = await apiService.checkout(items, total);
-      toast.success(`Order ${result.orderId} created successfully!`);
+      toast.success(`Pedido ${result.orderId} criado com sucesso!`);
       clearCart();
       onClose();
     } catch (error) {
@@ -53,9 +53,9 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         <div className="flex items-center justify-between border-b border-border p-4">
           <div className="flex items-center gap-3">
             <ShoppingBag className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold">Shopping Cart</h2>
+            <h2 className="text-lg font-semibold">Carrinho de Compras</h2>
             <span className="rounded-full bg-primary/20 px-2 py-0.5 font-mono text-xs text-primary">
-              {items.length} items
+              {items.length} itens
             </span>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose}>
@@ -88,9 +88,9 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <ShoppingBag className="h-16 w-16 text-muted-foreground/30" />
-              <p className="mt-4 text-muted-foreground">Your cart is empty</p>
+              <p className="mt-4 text-muted-foreground">Seu carrinho está vazio</p>
               <Button variant="outline" className="mt-4" onClick={onClose}>
-                Continue Shopping
+                Continuar Comprando
               </Button>
             </div>
           ) : (
@@ -168,18 +168,18 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               {isCheckingOut ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  Processing Order...
+                  Processando Pedido...
                 </>
               ) : (
                 <>
                   <ShoppingBag className="h-5 w-5" />
-                  Checkout
+                  Finalizar Compra
                 </>
               )}
             </Button>
 
             <p className="mt-3 text-center font-mono text-xs text-muted-foreground">
-              Order will be sent to Order Service (Python/FastAPI)
+              Pedido será enviado ao Order Service (Python/FastAPI)
             </p>
           </div>
         )}
