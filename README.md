@@ -8,7 +8,6 @@ Este projeto é o frontend para o E-Commerce Lab, um estudo de arquitetura de mi
 - **Linguagem**: TypeScript
 - **Estilização**: Tailwind CSS + shadcn/ui
 - **Gerenciamento de Estado**: React Query (TanStack Query) + Context API
-- **Infraestrutura**: Docker + Kubernetes (EKS)
 - **Formulários**: React Hook Form + Zod
 - **Visualização de Dados**: Recharts
 - **Ícones**: Lucide React
