@@ -18,6 +18,7 @@ Este projeto é o frontend para o E-Commerce Lab, um estudo de arquitetura de mi
 ```
 src/
 ├── app/              # Páginas e layouts do Next.js App Router
+│   ├── api/          # API Routes (BFF/Proxy)
 │   ├── globals.css   # Estilos globais
 │   ├── layout.tsx    # Layout raiz com providers
 │   └── page.tsx      # Página inicial
@@ -60,7 +61,10 @@ Abra [http://localhost:3000](http://localhost:3000) no seu navegador para ver o 
 Crie um arquivo `.env.local` para desenvolvimento local:
 
 ```env
+# URL do serviço de catálogo (pode ser interno no cluster ou externo via port-forward/mock)
 NEXT_PUBLIC_CATALOG_SERVICE_URL=http://localhost:3001
+
+# URL do serviço de pedidos
 NEXT_PUBLIC_ORDER_SERVICE_URL=http://localhost:3002
 ```
 
