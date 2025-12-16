@@ -4,6 +4,10 @@ on:
   push:
     branches: [ "main" ]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy-docker:
     uses: org-sam/templates-ci/.github/workflows/docker-build-push.yml@main
@@ -12,3 +16,9 @@ jobs:
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  deploy-aws-ecr:
+    uses: org-sam/templates-ci/.github/workflows/publish-aws-ecr.yml@main
+    with:
+      runs_on: ubuntu-latest
+      aws_role_last_name: dev-demo-github-oidc-infra-demo
