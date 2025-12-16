@@ -5,6 +5,6 @@ export const API_CONFIG = {
 };
 
 export const ENDPOINTS = {
-  PRODUCTS: `${API_CONFIG.CATALOG_SERVICE}/products`,
+  PRODUCTS: '/api/products',
   CHECKOUT: `${API_CONFIG.ORDER_SERVICE}/checkout`,
 };
