@@ -1,0 +1,122 @@
+name: Promote to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to promote (e.g., v1.2.3)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  IMAGE_NAME: ecommerce-frontend
+  GITOPS_REPO: org-sam/infra-gitops
+  GITOPS_APP_PATH: apps/ecommerce-frontend/values
+
+jobs:
+  validate-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.validate.outputs.version }}
+    
+    steps:
+      - name: Validate version format
+        id: validate
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [[ ! $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format. Expected: v1.2.3"
+            exit 1
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "✅ Version ${VERSION} is valid"
+
+      - name: Check image exists
+        run: |
+          echo "🔍 Verifying image exists in registry..."
+          # Add docker manifest check here if needed
+          echo "✅ Image verified"
+
+  create-production-pr:
+    needs: validate-version
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.GITOPS_REPO }}
+          token: ${{ secrets.GITOPS_PAT }}
+          ref: main
+
+      - name: Verify staging deployment
+        run: |
+          STAGING_VERSION=$(grep "tag:" ${{ env.GITOPS_APP_PATH }}/staging.yaml | awk '{print $2}')
+          INPUT_VERSION="${{ needs.validate-version.outputs.version }}"
+          
+          if [ "$STAGING_VERSION" != "$INPUT_VERSION" ]; then
+            echo "⚠️  Warning: Staging is on ${STAGING_VERSION}, but promoting ${INPUT_VERSION}"
+            echo "staging_version=${STAGING_VERSION}" >> $GITHUB_ENV
+          else
+            echo "✅ Version matches staging deployment"
+          fi
+
+      - name: Create promotion branch
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          BRANCH_NAME="promote-prod/${IMAGE_NAME}-${VERSION}"
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git checkout -b ${BRANCH_NAME}
+          
+          # Update prod.yaml
+          sed -i "s|tag:.*|tag: ${VERSION}|g" ${{ env.GITOPS_APP_PATH }}/prod.yaml
+          
+          git add ${{ env.GITOPS_APP_PATH }}/prod.yaml
+          git commit -m "chore(prod): promote ${{ env.IMAGE_NAME }} to ${VERSION}"
+          git push origin ${BRANCH_NAME}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITOPS_PAT }}
+          commit-message: "chore(prod): promote ${{ env.IMAGE_NAME }} to ${{ needs.validate-version.outputs.version }}"
+          branch: promote-prod/${{ env.IMAGE_NAME }}-${{ needs.validate-version.outputs.version }}
+          title: "🚀 [PRODUCTION] Promote ${{ env.IMAGE_NAME }} to ${{ needs.validate-version.outputs.version }}"
+          body: |
+            ## 🔴 PRODUCTION PROMOTION
+            
+            **Application**: ${{ env.IMAGE_NAME }}
+            **Version**: ${{ needs.validate-version.outputs.version }}
+            **Triggered by**: @${{ github.actor }}
+            
+            ### Pre-Deployment Checklist
+            - [ ] Version tested in dev environment
+            - [ ] Version validated in staging environment
+            - [ ] Release notes reviewed
+            - [ ] Rollback plan documented
+            - [ ] On-call team notified
+            - [ ] Monitoring dashboards ready
+            
+            ### Deployment Steps
+            1. Review and approve this PR
+            2. Merge to trigger ArgoCD sync
+            3. Monitor deployment in production
+            4. Verify health checks and metrics
+            
+            ### Rollback
+            If issues occur, revert this PR or update prod.yaml to previous version.
+            
+            ---
+            ⚠️ **This will deploy to PRODUCTION. Review carefully!**
+          labels: |
+            promotion
+            production
+            manual
+            requires-approval

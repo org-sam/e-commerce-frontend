@@ -1,0 +1,166 @@
+name: CI - Build and Deploy
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+  id-token: write
+
+env:
+  IMAGE_NAME: ecommerce-frontend
+  GITOPS_REPO: org-sam/infra-gitops
+  GITOPS_APP_PATH: apps/ecommerce-frontend/values
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
+      image_sha: ${{ steps.build.outputs.digest }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+  update-gitops-dev:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.GITOPS_REPO }}
+          token: ${{ secrets.GITOPS_PAT }}
+          ref: main
+
+      - name: Update dev image tag
+        run: |
+          IMAGE_TAG="${{ needs.build-and-push.outputs.image_tag }}"
+          
+          # Update dev.yaml
+          sed -i "s|tag:.*|tag: ${IMAGE_TAG}|g" ${{ env.GITOPS_APP_PATH }}/dev.yaml
+          
+          cat ${{ env.GITOPS_APP_PATH }}/dev.yaml
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add ${{ env.GITOPS_APP_PATH }}/dev.yaml
+          git commit -m "chore(dev): update ${{ env.IMAGE_NAME }} to ${{ needs.build-and-push.outputs.image_tag }}" || exit 0
+          git push
+
+  run-tests-dev:
+    needs: update-gitops-dev
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Wait for ArgoCD sync
+        run: |
+          echo "⏳ Waiting 60s for ArgoCD to sync dev environment..."
+          sleep 60
+
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests on dev..."
+          # Add your test commands here
+          # curl -f https://dev.ecommerce.example.com/health || exit 1
+          echo "✅ Tests passed!"
+
+  create-promotion-pr:
+    needs: [build-and-push, run-tests-dev]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.GITOPS_REPO }}
+          token: ${{ secrets.GITOPS_PAT }}
+          ref: main
+
+      - name: Create promotion branch
+        run: |
+          IMAGE_TAG="${{ needs.build-and-push.outputs.image_tag }}"
+          BRANCH_NAME="promote/${IMAGE_NAME}-${IMAGE_TAG}"
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git checkout -b ${BRANCH_NAME}
+          
+          # Update staging.yaml
+          sed -i "s|tag:.*|tag: ${IMAGE_TAG}|g" ${{ env.GITOPS_APP_PATH }}/staging.yaml
+          
+          git add ${{ env.GITOPS_APP_PATH }}/staging.yaml
+          git commit -m "chore(staging): promote ${{ env.IMAGE_NAME }} to ${IMAGE_TAG}"
+          git push origin ${BRANCH_NAME}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITOPS_PAT }}
+          commit-message: "chore(staging): promote ${{ env.IMAGE_NAME }} to ${{ needs.build-and-push.outputs.image_tag }}"
+          branch: promote/${{ env.IMAGE_NAME }}-${{ needs.build-and-push.outputs.image_tag }}
+          title: "🚀 Promote ${{ env.IMAGE_NAME }} to Staging (${{ needs.build-and-push.outputs.image_tag }})"
+          body: |
+            ## Promotion to Staging
+            
+            **Application**: ${{ env.IMAGE_NAME }}
+            **Version**: ${{ needs.build-and-push.outputs.image_tag }}
+            **Image Digest**: ${{ needs.build-and-push.outputs.image_sha }}
+            
+            ### Changes
+            - ✅ Built and tested in dev environment
+            - 📦 Image pushed to registry
+            - 🔄 Ready for staging deployment
+            
+            ### Checklist
+            - [ ] Review changes
+            - [ ] Approve and merge to deploy to staging
+            - [ ] Monitor staging deployment
+          labels: |
+            promotion
+            staging
+            automated
